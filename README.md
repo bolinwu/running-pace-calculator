@@ -1,27 +1,26 @@
-# 跑步配速換算器
+# 跑步配速計算器 (Pace Calculator)
 
-純前端靜態網站，使用 HTML、CSS、JavaScript 製作，不需要後端、資料庫或建置工具。
+一個輕量、反應迅速的單頁靜態網頁工具。輸入 400 公尺田徑場單圈秒數，系統將即時自動換算 1 公里目標配速，並計算出 5K、10K、半程馬拉松與全程馬拉松的等速完賽預估時間。
 
-## 本機預覽
+---
 
-直接以瀏覽器開啟 `index.html` 即可。
+## 💡 功能特點
 
-## 部署到 GitHub Pages
+- **即時計算**：無需點擊送出按鈕，輸入秒數隨即顯示完整配速與各距離時間。
+- **精準距離換算**：
+  - 1 公里配速：$400\text{m 秒數} \times 2.5$
+  - 5K (5.0 km)
+  - 10K (10.0 km)
+  - 半程馬拉松（以標準 21.0975 km 計算）
+  - 全程馬拉松（以標準 42.195 km 計算）
+- **零依賴與極致輕量**：採用純 HTML5 + Vanilla JS，並透過 Tailwind CSS CDN 打造沉浸式暗色模式（Dark Mode）介面。
+- **響應式設計**：支援手機與桌面瀏覽器最佳化顯示。
 
-1. 在 GitHub 建立一個新的 repository，例如 `running-pace-calculator`。
-2. 將 `index.html` 上傳到 repository 根目錄並 commit。
-3. 進入 repository 的 **Settings → Pages**。
-4. 在 **Build and deployment** 中，將 Source 設為 **Deploy from a branch**。
-5. Branch 選擇 `main`，資料夾選 `/ (root)`，按 **Save**。
-6. 等待 GitHub Pages 部署完成。網站網址通常會是：
-   `https://<你的 GitHub 帳號>.github.io/running-pace-calculator/`
+---
 
-若 repository 名稱是 `<你的 GitHub 帳號>.github.io`，網址則會是：
-`https://<你的 GitHub 帳號>.github.io/`
+## 🛠️ 專案結構
 
-## 計算方式
-
-- 每公里配速（秒） = 400 公尺秒數 × 2.5
-- 各距離時間 = 每公里配速 × 距離（公里）
-
-目前距離使用 5、10、21、42 公里整數值。
+```text
+.
+├── index.html   # 主程式碼 (包含 UI 佈局、 Tailwind CSS 樣式與配速邏輯)
+└── README.md    # 專案說明文件
