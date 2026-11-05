@@ -6,82 +6,62 @@
   <title>配速表產生器 Pace Table Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
-  <div class="max-w-6xl mx-auto space-y-6">
+<body class="bg-slate-900 text-slate-100 min-h-screen p-3 md:p-8">
+  <div class="max-w-4xl mx-auto space-y-4 md:space-y-6">
     
     <!-- 標頭區 -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
       <div>
-        <h1 class="text-2xl md:text-3xl font-bold text-emerald-400">配速對照表產生器</h1>
-        <p class="text-slate-400 text-sm mt-1">輸入 400m 秒數可直接新增至表格，快速比較不同區間的 1k 配速與各距離完賽預估時間</p>
+        <h1 class="text-xl md:text-3xl font-bold text-emerald-400">配速對照表產生器</h1>
+        <p class="text-slate-400 text-xs md:text-sm mt-0.5">輸入 400m 秒數快速比較 1k 配速與各距離完賽時間</p>
       </div>
       <button 
         id="resetBtn" 
-        class="self-start md:self-auto bg-slate-800 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-800/50 px-4 py-2 rounded-lg text-sm transition flex items-center gap-2"
+        class="self-start sm:self-auto bg-slate-800 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-800/50 px-3 py-1.5 rounded-lg text-xs md:text-sm transition flex items-center gap-1.5"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
-        清除所有資料
+        清除全部
       </button>
     </div>
 
     <!-- 輸入控制區塊 -->
-    <form id="paceForm" class="bg-slate-800 border border-slate-700 rounded-xl p-4 md:p-6 shadow-lg flex flex-col md:flex-row items-end gap-4">
+    <form id="paceForm" class="bg-slate-800 border border-slate-700 rounded-xl p-3 md:p-6 shadow-lg flex flex-col sm:flex-row items-end gap-3">
       <div class="flex-1 w-full">
-        <label for="lapInput" class="block text-sm font-medium text-slate-300 mb-2">
+        <label for="lapInput" class="block text-xs md:text-sm font-medium text-slate-300 mb-1.5">
           400 公尺單圈秒數
         </label>
         <div class="relative">
           <input 
             type="number" 
             id="lapInput" 
-            placeholder="例如：90 (代表 1:30/400m)" 
+            placeholder="例如：90 (1:30)" 
             min="1" 
             step="any"
             required
-            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-emerald-400 font-mono text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-600 transition"
+            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 md:px-4 md:py-3 text-emerald-400 font-mono text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-600 transition"
           />
-          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-mono">秒</span>
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs md:text-sm font-mono">秒</span>
         </div>
       </div>
 
       <button 
         type="submit" 
-        class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-emerald-900/30 transition flex items-center justify-center gap-2"
+        class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 md:py-3 rounded-lg shadow-md transition flex items-center justify-center gap-1.5 text-sm md:text-base whitespace-nowrap"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
-        新增至對照表
+        新增
       </button>
     </form>
 
-    <!-- Excel 風格表格 -->
-    <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-950 text-slate-300 text-xs md:text-sm font-medium uppercase tracking-wider border-b border-slate-700">
-              <th class="py-3 px-4 w-16 text-center">#</th>
-              <th class="py-3 px-4">400m 秒數</th>
-              <th class="py-3 px-4 text-emerald-400">1 km 配速</th>
-              <th class="py-3 px-4">5 km</th>
-              <th class="py-3 px-4">10 km</th>
-              <th class="py-3 px-4">半馬 (21.0975k)</th>
-              <th class="py-3 px-4">全馬 (42.195k)</th>
-              <th class="py-3 px-4 w-16 text-center">操作</th>
-            </tr>
-          </thead>
-          <tbody id="paceTableBody" class="divide-y divide-slate-700/60 font-mono text-sm">
-            <!-- 預設無資料提示 -->
-            <tr id="emptyRow">
-              <td colspan="8" class="py-12 text-center text-slate-500 font-sans">
-                尚無配速資料，請輸入 400m 秒數並按下新增
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- 資料呈現區：手機上使用卡片式堆疊，大螢幕維持表格 -->
+    <div id="cardContainer" class="space-y-3">
+      <!-- 預設空白提示 -->
+      <div id="emptyTip" class="bg-slate-800 border border-slate-700 rounded-xl p-8 text-center text-slate-500 text-sm">
+        尚無配速資料，請於上方輸入 400m 秒數並按下新增
       </div>
     </div>
 
@@ -90,13 +70,13 @@
   <script>
     const paceForm = document.getElementById('paceForm');
     const lapInput = document.getElementById('lapInput');
-    const tableBody = document.getElementById('paceTableBody');
-    const emptyRow = document.getElementById('emptyRow');
+    const cardContainer = document.getElementById('cardContainer');
+    const emptyTip = document.getElementById('emptyTip');
     const resetBtn = document.getElementById('resetBtn');
 
     let rowCount = 0;
 
-    // 時間格式化 (總秒數 -> 小時/分/秒)
+    // 時間格式化
     function formatTime(totalSeconds) {
       const hrs = Math.floor(totalSeconds / 3600);
       const mins = Math.floor((totalSeconds % 3600) / 60);
@@ -105,78 +85,91 @@
       if (hrs > 0) {
         return `${hrs}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
       }
-      return `${mins}m ${secs.toString().padStart(2, '0')}s`;
+      return `${mins}分 ${secs.toString().padStart(2, '0')}秒`;
     }
 
-    // 配速格式化 (秒/km -> MM'SS")
+    // 配速格式化
     function formatPace(secPerKm) {
       const mins = Math.floor(secPerKm / 60);
       const secs = Math.round(secPerKm % 60);
       return `${mins}'${secs.toString().padStart(2, '0')}"`;
     }
 
-    // 新增資料列
     paceForm.addEventListener('submit', (e) => {
       e.preventDefault();
       
       const lapSeconds = parseFloat(lapInput.value);
       if (isNaN(lapSeconds) || lapSeconds <= 0) return;
 
-      // 計算各距離時間
       const secPerKm = lapSeconds * 2.5;
       const sec5k = secPerKm * 5;
       const sec10k = secPerKm * 10;
       const secHalf = secPerKm * 21.0975;
       const secFull = secPerKm * 42.195;
 
-      // 隱藏空白提示
-      if (emptyRow) {
-        emptyRow.classList.add('hidden');
+      if (emptyTip) {
+        emptyTip.style.display = 'none';
       }
 
       rowCount++;
 
-      // 建立 tr DOM
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-slate-700/40 transition-colors';
-      tr.innerHTML = `
-        <td class="py-3 px-4 text-center text-slate-500 font-sans text-xs">${rowCount}</td>
-        <td class="py-3 px-4 text-slate-200">${lapSeconds} s</td>
-        <td class="py-3 px-4 text-emerald-400 font-bold">${formatPace(secPerKm)} /km</td>
-        <td class="py-3 px-4 text-slate-300">${formatTime(sec5k)}</td>
-        <td class="py-3 px-4 text-slate-300">${formatTime(sec10k)}</td>
-        <td class="py-3 px-4 text-slate-300">${formatTime(secHalf)}</td>
-        <td class="py-3 px-4 text-slate-300">${formatTime(secFull)}</td>
-        <td class="py-3 px-4 text-center">
-          <button class="delete-btn text-slate-500 hover:text-rose-400 p-1 transition" title="刪除此行">
+      // 建立手機與電腦皆極佳適應的卡片區塊
+      const card = document.createElement('div');
+      card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md transition hover:border-slate-600 space-y-3';
+      card.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-700/60 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="bg-slate-900 text-slate-400 font-mono text-xs px-2 py-0.5 rounded border border-slate-700">#${rowCount}</span>
+            <span class="text-slate-300 text-sm">400m: <strong class="text-slate-100 font-mono">${lapSeconds}s</strong></span>
+          </div>
+          <button class="delete-btn text-slate-500 hover:text-rose-400 p-1 transition" title="刪除此筆">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-        </td>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 font-mono text-sm">
+          <div class="bg-slate-900/80 p-2.5 rounded-lg border border-emerald-500/30 col-span-2 sm:col-span-1 flex flex-col justify-center">
+            <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">1 km 配速</div>
+            <div class="text-emerald-400 font-bold text-base mt-0.5">${formatPace(secPerKm)} <span class="text-xs font-normal">/km</span></div>
+          </div>
+          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+            <div class="text-[10px] text-slate-400 font-sans">5 km</div>
+            <div class="text-slate-200 text-sm mt-0.5">${formatTime(sec5k)}</div>
+          </div>
+          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+            <div class="text-[10px] text-slate-400 font-sans">10 km</div>
+            <div class="text-slate-200 text-sm mt-0.5">${formatTime(sec10k)}</div>
+          </div>
+          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+            <div class="text-[10px] text-slate-400 font-sans">半馬 (21.1k)</div>
+            <div class="text-slate-200 text-sm mt-0.5">${formatTime(secHalf)}</div>
+          </div>
+          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+            <div class="text-[10px] text-slate-400 font-sans">全馬 (42.2k)</div>
+            <div class="text-slate-200 text-sm mt-0.5">${formatTime(secFull)}</div>
+          </div>
+        </div>
       `;
 
-      // 綁定單行刪除功能
-      tr.querySelector('.delete-btn').addEventListener('click', () => {
-        tr.remove();
-        if (tableBody.querySelectorAll('tr:not(#emptyRow)').length === 0) {
-          emptyRow.classList.remove('hidden');
+      card.querySelector('.delete-btn').addEventListener('click', () => {
+        card.remove();
+        if (cardContainer.querySelectorAll('.bg-slate-800:not(#emptyTip)').length === 0) {
+          emptyTip.style.display = 'block';
           rowCount = 0;
         }
       });
 
-      tableBody.appendChild(tr);
-
-      // 清空輸入框並聚焦
+      cardContainer.prepend(card); // 新增的排在最上方，方便手機直接看到
       lapInput.value = '';
       lapInput.focus();
     });
 
-    // 重設（清除所有）按鈕
     resetBtn.addEventListener('click', () => {
-      const rows = tableBody.querySelectorAll('tr:not(#emptyRow)');
-      rows.forEach(row => row.remove());
-      emptyRow.classList.remove('hidden');
+      const cards = cardContainer.querySelectorAll('.bg-slate-800:not(#emptyTip)');
+      cards.forEach(c => c.remove());
+      emptyTip.style.display = 'block';
       rowCount = 0;
       lapInput.value = '';
       lapInput.focus();
