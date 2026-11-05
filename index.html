@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>配速表產生器 Pace Table Generator</title>
+  <title>配速對照表產生器 Pace Table Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 匯出圖片所需的 html2canvas 套件 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-3 md:p-8">
   <div class="max-w-4xl mx-auto space-y-4 md:space-y-6">
@@ -15,53 +17,82 @@
         <h1 class="text-xl md:text-3xl font-bold text-emerald-400">配速對照表產生器</h1>
         <p class="text-slate-400 text-xs md:text-sm mt-0.5">輸入 400m 秒數快速比較 1k 配速與各距離完賽時間</p>
       </div>
-      <button 
-        id="resetBtn" 
-        class="self-start sm:self-auto bg-slate-800 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-800/50 px-3 py-1.5 rounded-lg text-xs md:text-sm transition flex items-center gap-1.5"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-        </svg>
-        清除全部
-      </button>
+      
+      <div class="flex items-center gap-2 self-start sm:self-auto">
+        <button 
+          id="exportBtn" 
+          class="bg-slate-800 hover:bg-emerald-950/40 text-slate-300 hover:text-emerald-400 border border-slate-700 hover:border-emerald-800/50 px-3 py-1.5 rounded-lg text-xs md:text-sm transition flex items-center gap-1.5"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          匯出圖片
+        </button>
+        <button 
+          id="resetBtn" 
+          class="bg-slate-800 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-800/50 px-3 py-1.5 rounded-lg text-xs md:text-sm transition flex items-center gap-1.5"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          清除全部
+        </button>
+      </div>
     </div>
 
     <!-- 輸入控制區塊 -->
-    <form id="paceForm" class="bg-slate-800 border border-slate-700 rounded-xl p-3 md:p-6 shadow-lg flex flex-col sm:flex-row items-end gap-3">
-      <div class="flex-1 w-full">
-        <label for="lapInput" class="block text-xs md:text-sm font-medium text-slate-300 mb-1.5">
-          400 公尺單圈秒數
-        </label>
-        <div class="relative">
-          <input 
-            type="number" 
-            id="lapInput" 
-            placeholder="例如：90 (1:30)" 
-            min="1" 
-            step="any"
-            required
-            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 md:px-4 md:py-3 text-emerald-400 font-mono text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-600 transition"
-          />
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs md:text-sm font-mono">秒</span>
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 md:p-6 shadow-lg space-y-4">
+      <form id="paceForm" class="flex flex-col sm:flex-row items-end gap-3">
+        <!-- 單一輸入框 -->
+        <div class="flex-1 w-full">
+          <label for="secInput" class="block text-xs md:text-sm font-medium text-slate-300 mb-1.5">
+            400m 單圈時間 (秒)
+          </label>
+          <div class="relative">
+            <input 
+              type="number" 
+              id="secInput" 
+              placeholder="例如：90" 
+              min="1" 
+              step="any"
+              required
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 md:px-4 md:py-3 text-emerald-400 font-mono text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-600 transition"
+            />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs md:text-sm font-mono">秒</span>
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 md:py-3 rounded-lg shadow-md transition flex items-center justify-center gap-1.5 text-sm md:text-base whitespace-nowrap"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          新增
+        </button>
+      </form>
+
+      <!-- 常用快捷按鈕 (格式：秒數s (1公里配速 /km)) -->
+      <div class="pt-2 border-t border-slate-700/60">
+        <div class="text-[11px] md:text-xs text-slate-400 mb-2">常用練習區間快捷鍵：</div>
+        <div class="flex flex-wrap gap-1.5">
+          <button class="quick-btn bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded transition font-mono" data-sec="90">90s (3'45" /km)</button>
+          <button class="quick-btn bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded transition font-mono" data-sec="98">98s (4'05" /km)</button>
+          <button class="quick-btn bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded transition font-mono" data-sec="102">102s (4'15" /km)</button>
+          <button class="quick-btn bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded transition font-mono" data-sec="108">108s (4'30" /km)</button>
+          <button class="quick-btn bg-slate-900 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded transition font-mono" data-sec="120">120s (5'00" /km)</button>
         </div>
       </div>
+    </div>
 
-      <button 
-        type="submit" 
-        class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 md:py-3 rounded-lg shadow-md transition flex items-center justify-center gap-1.5 text-sm md:text-base whitespace-nowrap"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-        新增
-      </button>
-    </form>
-
-    <!-- 資料呈現區：手機上使用卡片式堆疊，大螢幕維持表格 -->
-    <div id="cardContainer" class="space-y-3">
-      <!-- 預設空白提示 -->
-      <div id="emptyTip" class="bg-slate-800 border border-slate-700 rounded-xl p-8 text-center text-slate-500 text-sm">
-        尚無配速資料，請於上方輸入 400m 秒數並按下新增
+    <!-- 資料呈現區 -->
+    <div id="exportTarget" class="p-1 rounded-xl bg-slate-900 space-y-3">
+      <div id="cardContainer" class="space-y-3">
+        <!-- 預設空白提示 -->
+        <div id="emptyTip" class="bg-slate-800 border border-slate-700 rounded-xl p-8 text-center text-slate-500 text-sm">
+          尚無配速資料，請輸入秒數或點擊快捷按鈕加入對照表
+        </div>
       </div>
     </div>
 
@@ -69,14 +100,42 @@
 
   <script>
     const paceForm = document.getElementById('paceForm');
-    const lapInput = document.getElementById('lapInput');
+    const secInput = document.getElementById('secInput');
     const cardContainer = document.getElementById('cardContainer');
     const emptyTip = document.getElementById('emptyTip');
     const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
 
-    let rowCount = 0;
+    // LocalStorage Key
+    const STORAGE_KEY = 'pace_calculator_data';
+    let paceRecords = [];
 
-    // 時間格式化
+    // 初始化載入歷史資料
+    init();
+
+    function init() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          paceRecords = JSON.parse(saved);
+          render();
+        } catch (e) {
+          paceRecords = [];
+        }
+      }
+
+      // 綁定快捷按鈕點擊事件
+      document.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sec = parseFloat(btn.dataset.sec);
+          if (sec > 0) {
+            addRecord(sec);
+          }
+        });
+      });
+    }
+
+    // 時間格式化 (總秒數 -> 1h 20m 05s 或 20分 05秒)
     function formatTime(totalSeconds) {
       const hrs = Math.floor(totalSeconds / 3600);
       const mins = Math.floor((totalSeconds % 3600) / 60);
@@ -88,91 +147,157 @@
       return `${mins}分 ${secs.toString().padStart(2, '0')}秒`;
     }
 
-    // 配速格式化
+    // 配速格式化 (秒/km -> 3'45")
     function formatPace(secPerKm) {
       const mins = Math.floor(secPerKm / 60);
       const secs = Math.round(secPerKm % 60);
       return `${mins}'${secs.toString().padStart(2, '0')}"`;
     }
 
+    // 新增資料邏輯
+    function addRecord(totalLapSeconds) {
+      if (isNaN(totalLapSeconds) || totalLapSeconds <= 0) return;
+
+      paceRecords.unshift({
+        id: Date.now(),
+        lapSeconds: totalLapSeconds
+      });
+
+      saveAndRender();
+    }
+
+    // 表單送出處理
     paceForm.addEventListener('submit', (e) => {
       e.preventDefault();
       
-      const lapSeconds = parseFloat(lapInput.value);
-      if (isNaN(lapSeconds) || lapSeconds <= 0) return;
+      const totalSeconds = parseFloat(secInput.value);
+      if (isNaN(totalSeconds) || totalSeconds <= 0) return;
 
-      const secPerKm = lapSeconds * 2.5;
-      const sec5k = secPerKm * 5;
-      const sec10k = secPerKm * 10;
-      const secHalf = secPerKm * 21.0975;
-      const secFull = secPerKm * 42.195;
+      addRecord(totalSeconds);
 
-      if (emptyTip) {
-        emptyTip.style.display = 'none';
-      }
-
-      rowCount++;
-
-      // 建立手機與電腦皆極佳適應的卡片區塊
-      const card = document.createElement('div');
-      card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md transition hover:border-slate-600 space-y-3';
-      card.innerHTML = `
-        <div class="flex items-center justify-between border-b border-slate-700/60 pb-2.5">
-          <div class="flex items-center gap-2">
-            <span class="bg-slate-900 text-slate-400 font-mono text-xs px-2 py-0.5 rounded border border-slate-700">#${rowCount}</span>
-            <span class="text-slate-300 text-sm">400m: <strong class="text-slate-100 font-mono">${lapSeconds}s</strong></span>
-          </div>
-          <button class="delete-btn text-slate-500 hover:text-rose-400 p-1 transition" title="刪除此筆">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 font-mono text-sm">
-          <div class="bg-slate-900/80 p-2.5 rounded-lg border border-emerald-500/30 col-span-2 sm:col-span-1 flex flex-col justify-center">
-            <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">1 km 配速</div>
-            <div class="text-emerald-400 font-bold text-base mt-0.5">${formatPace(secPerKm)} <span class="text-xs font-normal">/km</span></div>
-          </div>
-          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
-            <div class="text-[10px] text-slate-400 font-sans">5 km</div>
-            <div class="text-slate-200 text-sm mt-0.5">${formatTime(sec5k)}</div>
-          </div>
-          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
-            <div class="text-[10px] text-slate-400 font-sans">10 km</div>
-            <div class="text-slate-200 text-sm mt-0.5">${formatTime(sec10k)}</div>
-          </div>
-          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
-            <div class="text-[10px] text-slate-400 font-sans">半馬 (21.1k)</div>
-            <div class="text-slate-200 text-sm mt-0.5">${formatTime(secHalf)}</div>
-          </div>
-          <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
-            <div class="text-[10px] text-slate-400 font-sans">全馬 (42.2k)</div>
-            <div class="text-slate-200 text-sm mt-0.5">${formatTime(secFull)}</div>
-          </div>
-        </div>
-      `;
-
-      card.querySelector('.delete-btn').addEventListener('click', () => {
-        card.remove();
-        if (cardContainer.querySelectorAll('.bg-slate-800:not(#emptyTip)').length === 0) {
-          emptyTip.style.display = 'block';
-          rowCount = 0;
-        }
-      });
-
-      cardContainer.prepend(card); // 新增的排在最上方，方便手機直接看到
-      lapInput.value = '';
-      lapInput.focus();
+      secInput.value = '';
+      secInput.focus();
     });
 
+    // 刪除單筆資料
+    function deleteRecord(id) {
+      paceRecords = paceRecords.filter(r => r.id !== id);
+      saveAndRender();
+    }
+
+    // 儲存與渲染 UI
+    function saveAndRender() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(paceRecords));
+      render();
+    }
+
+    function render() {
+      if (paceRecords.length === 0) {
+        emptyTip.style.display = 'block';
+        cardContainer.innerHTML = '';
+        cardContainer.appendChild(emptyTip);
+        return;
+      }
+
+      emptyTip.style.display = 'none';
+      cardContainer.innerHTML = '';
+
+      paceRecords.forEach((record, index) => {
+        const lapSeconds = record.lapSeconds;
+        const secPerKm = lapSeconds * 2.5;
+        const sec5k = secPerKm * 5;
+        const sec10k = secPerKm * 10;
+        const secHalf = secPerKm * 21.0975;
+        const secFull = secPerKm * 42.195;
+
+        const card = document.createElement('div');
+        card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md transition hover:border-slate-600 space-y-3';
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="bg-slate-900 text-slate-400 font-mono text-xs px-2 py-0.5 rounded border border-slate-700">#${paceRecords.length - index}</span>
+              <span class="text-slate-300 text-sm">400m: <strong class="text-slate-100 font-mono">${lapSeconds}s</strong></span>
+            </div>
+            <button class="delete-btn text-slate-500 hover:text-rose-400 p-1 transition" title="刪除此筆" data-id="${record.id}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1 font-mono text-sm">
+            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-emerald-500/30 col-span-2 sm:col-span-1 flex flex-col justify-center">
+              <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">1 km 配速</div>
+              <div class="text-emerald-400 font-bold text-base mt-0.5">${formatPace(secPerKm)} <span class="text-xs font-normal">/km</span></div>
+            </div>
+            <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+              <div class="text-[10px] text-slate-400 font-sans">5 km</div>
+              <div class="text-slate-200 text-sm mt-0.5">${formatTime(sec5k)}</div>
+            </div>
+            <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+              <div class="text-[10px] text-slate-400 font-sans">10 km</div>
+              <div class="text-slate-200 text-sm mt-0.5">${formatTime(sec10k)}</div>
+            </div>
+            <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+              <div class="text-[10px] text-slate-400 font-sans">半馬 (21.1k)</div>
+              <div class="text-slate-200 text-sm mt-0.5">${formatTime(secHalf)}</div>
+            </div>
+            <div class="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+              <div class="text-[10px] text-slate-400 font-sans">全馬 (42.2k)</div>
+              <div class="text-slate-200 text-sm mt-0.5">${formatTime(secFull)}</div>
+            </div>
+          </div>
+        `;
+
+        card.querySelector('.delete-btn').addEventListener('click', (e) => {
+          const id = Number(e.currentTarget.dataset.id);
+          deleteRecord(id);
+        });
+
+        cardContainer.appendChild(card);
+      });
+    }
+
+    // 重設全部
     resetBtn.addEventListener('click', () => {
-      const cards = cardContainer.querySelectorAll('.bg-slate-800:not(#emptyTip)');
-      cards.forEach(c => c.remove());
-      emptyTip.style.display = 'block';
-      rowCount = 0;
-      lapInput.value = '';
-      lapInput.focus();
+      if (paceRecords.length === 0) return;
+      if (confirm('確定要清除所有計算紀錄嗎？')) {
+        paceRecords = [];
+        saveAndRender();
+      }
+    });
+
+    // 匯出成圖片
+    exportBtn.addEventListener('click', () => {
+      if (paceRecords.length === 0) {
+        alert('請先新增至少一筆配速資料再匯出！');
+        return;
+      }
+
+      exportBtn.innerText = '產生圖片中...';
+      exportBtn.disabled = true;
+
+      const target = document.getElementById('exportTarget');
+      
+      html2canvas(target, {
+        backgroundColor: '#0f172a',
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `pace-table-${new Date().toISOString().slice(0, 10)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        exportBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg> 匯出圖片`;
+        exportBtn.disabled = false;
+      }).catch(err => {
+        alert('匯出失敗，請重試');
+        exportBtn.innerText = '匯出圖片';
+        exportBtn.disabled = false;
+      });
     });
   </script>
 </body>
