@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>跑步配速換算器</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1220; --panel:#131e30; --line:#29384e; --muted:#9aabc2; --text:#edf4ff; --accent:#63d5b2; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; padding:40px 18px; background:radial-gradient(ellipse at top,#1b2b42 0,var(--bg) 58%); color:var(--text); font:16px/1.5 system-ui,-apple-system,"Noto Sans TC",sans-serif; }
+    main { max-width:1000px; margin:auto; }
+    header { margin-bottom:28px; }
+    .eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.16em; }
+    h1 { margin:8px 0; font-size:clamp(28px,5vw,42px); letter-spacing:.02em; }
+    header p,.hint { color:var(--muted); }
+    .panel { padding:22px; border:1px solid var(--line); border-radius:18px; background:rgba(19,30,48,.92); box-shadow:0 18px 55px #0003; }
+    .toolbar { display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin-bottom:18px; }
+    label { display:grid; gap:7px; color:var(--muted); font-size:13px; }
+    input { width:150px; padding:11px 12px; border:1px solid #40516b; border-radius:9px; background:#0c1626; color:var(--text); font:inherit; }
+    input:focus { outline:2px solid var(--accent); border-color:transparent; }
+    button { padding:11px 16px; border:0; border-radius:9px; background:var(--accent); color:#082018; font-weight:800; font:inherit; cursor:pointer; }
+    button.secondary { border:1px solid #40516b; background:transparent; color:var(--text); }
+    button:hover { filter:brightness(1.08); }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
+    table { width:100%; border-collapse:collapse; min-width:650px; }
+    th,td { padding:14px 16px; text-align:center; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+    th { background:#1a2940; color:#b8c9df; font-size:13px; white-space:nowrap; }
+    tbody tr:last-child td { border-bottom:0; }
+    tbody tr:hover { background:#ffffff08; }
+    td:first-child { color:var(--accent); font-weight:800; }
+    .pace { font-weight:800; }
+    .empty { color:var(--muted); padding:24px; }
+    .hint { margin:16px 2px 0; font-size:13px; }
+    footer { margin-top:18px; color:#75869e; font-size:12px; text-align:center; }
+    @media(max-width:600px) { body { padding:28px 12px; } .panel { padding:15px; } .toolbar label { flex:1; } input { width:100%; } .toolbar button { flex:1; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">RUNNING PACE TOOL</div>
+    <h1>跑步配速換算器</h1>
+    <p>輸入 400 公尺所需秒數，即時換算每公里配速與各距離預估時間。</p>
+  </header>
+
+  <section class="panel">
+    <div class="toolbar">
+      <label for="seconds">400 公尺時間（秒）
+        <input id="seconds" type="number" min="1" max="3600" step="1" value="90" inputmode="numeric">
+      </label>
+      <button id="add">新增一筆配速</button>
+      <button id="reset" class="secondary">重設</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>400 公尺</th>
+            <th>每公里配速</th>
+            <th>5 公里</th>
+            <th>10 公里</th>
+            <th>21 公里</th>
+            <th>42 公里</th>
+          </tr>
+        </thead>
+        <tbody id="results"></tbody>
+      </table>
+    </div>
+    <p class="hint">計算基準：1 公里時間 = 400 公尺時間 × 2.5。距離以 5、10、21、42 公里整數計算，結果為等速推估。</p>
+  </section>
+  <footer>純 HTML、CSS、JavaScript｜無需後端或資料庫｜可直接部署至 GitHub Pages</footer>
+</main>
+<script>
+  const secondsInput = document.querySelector("#seconds");
+  const results = document.querySelector("#results");
+  const rows = [90];
+
+  function formatTime(totalSeconds, pace = false) {
+    const rounded = Math.round(totalSeconds);
+    const hours = Math.floor(rounded / 3600);
+    const minutes = Math.floor((rounded % 3600) / 60);
+    const seconds = rounded % 60;
+    const pad = n => String(n).padStart(2, "0");
+    if (pace || hours === 0) return `${hours ? hours * 60 + minutes : minutes}:${pad(seconds)}`;
+    return `${hours}:${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  function render() {
+    results.replaceChildren();
+    rows.forEach((seconds, index) => {
+      const tr = document.createElement("tr");
+      const pace = seconds * 2.5;
+      const values = [
+        `${seconds} 秒`,
+        formatTime(pace, true),
+        formatTime(pace * 5),
+        formatTime(pace * 10),
+        formatTime(pace * 21),
+        formatTime(pace * 42)
+      ];
+      values.forEach((value, i) => {
+        const td = document.createElement("td");
+        td.textContent = value;
+        if (i === 1) td.className = "pace";
+        tr.appendChild(td);
+      });
+      results.appendChild(tr);
+    });
+  }
+
+  document.querySelector("#add").addEventListener("click", () => {
+    const value = Number(secondsInput.value);
+    if (!Number.isFinite(value) || value <= 0 || value > 3600) {
+      secondsInput.focus();
+      secondsInput.setCustomValidity("請輸入 1 到 3600 之間的秒數。");
+      secondsInput.reportValidity();
+      secondsInput.setCustomValidity("");
+      return;
+    }
+    const rounded = Math.round(value);
+    if (!rows.includes(rounded)) rows.push(rounded);
+    rows.sort((a, b) => a - b);
+    render();
+  });
+
+  document.querySelector("#reset").addEventListener("click", () => {
+    rows.splice(0, rows.length, 90);
+    secondsInput.value = 90;
+    render();
+  });
+
+  secondsInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") document.querySelector("#add").click();
+  });
+
+  render();
+</script>
+</body>
+</html>
